@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot name="L515" xmlns:xacro="http://ros.org/wiki/xacro">
+
+<!--macro name="L515" params="*origin"-->
+
+
+
+<xacro:macro name="L515_base" params="prefix parent_link *origin">
+
+    <!-- links -->
+
+    <link name="${prefix}_L515_base">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://visiondisplay/meshes/visual/Intel_Realsense_L515.stl"/>
+        </geometry>
+        <material name="aluminum">
+          <color rgba="0.5 0.5 0.5 1"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://visiondisplay/meshes/collision/Intel_Realsense_L515.stl"/>
+        </geometry>
+      </collision>
+    <inertial>
+      <mass value=".3"/>
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+    </inertial>
+    </link>
+
+    <joint name="${prefix}_L515_joint" type="fixed">
+        <xacro:insert_block name="origin"/>
+        <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
+        <parent link="${parent_link}"/>
+        <child link="${prefix}_L515_base"/>
+        <axis xyz="0 0 -1"/>
+    </joint>
+
+</xacro:macro>
+
+</robot>
