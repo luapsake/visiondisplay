@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<robot name="D435" xmlns:xacro="http://ros.org/wiki/xacro">
+<robot name="Surface" xmlns:xacro="http://ros.org/wiki/xacro">
 
-<!--macro name="D435" params="*origin"-->
+<!--macro name="Surface" params="*origin"-->
 
 
 
-<xacro:macro name="D435_base" params="prefix parent_link *origin">
+<xacro:macro name="Surface_base" params="prefix parent_link *origin">
 
     <!-- links -->
 
-    <link name="${prefix}_D435_base">
+    <link name="${prefix}_Surface_base">
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://visiondisplay/meshes/visual/Intel_Realsense_D435.stl"/>
+          <mesh filename="package://visiondisplay/meshes/visual/Microsoft_Surface.stl"/>
         </geometry>
         <material name="aluminum">
           <color rgba="0.5 0.5 0.5 1"/>
@@ -22,7 +22,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://visiondisplay/meshes/collision/Intel_Realsense_D435.stl"/>
+          <mesh filename="package://visiondisplay/meshes/collision/Microsoft_Surface.stl"/>
         </geometry>
       </collision>
     <inertial>
@@ -31,11 +31,11 @@
     </inertial>
     </link>
 
-    <joint name="${prefix}_D435_joint" type="fixed">
+    <joint name="${prefix}_Surface_joint" type="fixed">
         <xacro:insert_block name="origin"/>
         <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
         <parent link="${parent_link}"/>
-        <child link="${prefix}_D435_base"/>
+        <child link="${prefix}_Surface_base"/>
         <axis xyz="0 0 -1"/>
     </joint>
 
