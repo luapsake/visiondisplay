@@ -1,43 +1,230 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot name="D435" xmlns:xacro="http://ros.org/wiki/xacro">
 
-<!--macro name="D435" params="*origin"-->
+
+<!-- REAL PARAMETERS -->  
+<!-- <xacro:property name="D435_min_operating_range" value="0.11"/>
+<xacro:property name="D435_max_operating_range" value="10"/>
+
+<xacro:property name="D435_image_resolution_width" value="1280"/>
+<xacro:property name="D435_image_resolution_height" value="720"/>
+
+<xacro:property name="D435_horizontal_depth_fov" value="85.2"/>
+<xacro:property name="D435_vertical_depth_fov" value="58"/> -->
+
+<!-- DOWNSAMPLED PARAMETERS -->
+<xacro:property name="D435_min_operating_range" value="0.11"/>
+<xacro:property name="D435_max_operating_range" value="10"/>
+
+<xacro:property name="D435_image_resolution_width" value="640"/>
+<xacro:property name="D435_image_resolution_height" value="480"/>
+
+<xacro:property name="D435_horizontal_depth_fov" value="60"/>
 
 
 
 <xacro:macro name="D435_base" params="prefix parent_link *origin">
 
-    <!-- links -->
+  <!-- links -->
 
-    <link name="${prefix}_D435_base">
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <mesh filename="package://visiondisplay/meshes/visual/Intel_Realsense_D435.stl"/>
-        </geometry>
-        <material name="aluminum">
-          <color rgba="0.5 0.5 0.5 1"/>
-        </material>
-      </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <mesh filename="package://visiondisplay/meshes/collision/Intel_Realsense_D435.stl"/>
-        </geometry>
-      </collision>
+  <link name="${prefix}_D435_base">
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://visiondisplay/meshes/visual/Intel_Realsense_D435.stl"/>
+      </geometry>
+      <material name="aluminum">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.0078 0.130 0.0192"/>
+      </geometry>
+    </collision>
+
     <inertial>
-      <mass value=".3"/>
-      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+      <mass value="0.0615752"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="9.108e-05"
+                ixy="0"
+                ixz="0"
+                iyy="2.51e-06"
+                iyz="0"
+                izz="8.931e-05"
+      />
     </inertial>
-    </link>
 
-    <joint name="${prefix}_D435_joint" type="fixed">
-        <xacro:insert_block name="origin"/>
-        <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
-        <parent link="${parent_link}"/>
-        <child link="${prefix}_D435_base"/>
-        <axis xyz="0 0 -1"/>
-    </joint>
+  </link>
+
+  <joint name="${prefix}_D435_joint" type="fixed">
+      <xacro:insert_block name="origin"/>
+      <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
+      <parent link="${parent_link}"/>
+      <child link="${prefix}_D435_base"/>
+      <axis xyz="0 0 -1"/>
+  </joint>
+
+  <link name="color" />
+  <link name="depth" />
+  <link name="ired1" />
+  <link name="ired2" />
+
+
+  <joint name="color_joint" type="fixed">
+      <parent link="${prefix}_D435_base" />
+      <child link="color" />
+      <origin xyz="0 -0.046 0.004" rpy="1.5707 3.1414 1.5707"/>
+  </joint>
+
+  <joint name="depth_joint" type="fixed">
+      <parent link="${prefix}_D435_base" />
+      <child link="depth" />
+      <origin xyz="0 -0.03 0.004" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="ired1_joint" type="fixed">
+      <parent link="${prefix}_D435_base" />
+      <child link="ired1" />
+      <origin xyz="0 -0.06 0.004" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="ired2_joint" type="fixed">
+      <parent link="${prefix}_D435_base" />
+      <child link="ired2" />
+      <origin xyz="0 0.01 0.004" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Gazebo Plugin -->
+
+	<gazebo>
+    <plugin name="D435" filename="librealsense_gazebo_plugin.so"/>
+  </gazebo>
+
+  <!-- Load parameters to model's main link-->
+  <gazebo reference="${prefix}_D435_base">
+      <self_collide>0</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+      <turnGravityOff>false</turnGravityOff>
+
+      <mu2>1</mu2>
+      <fdir1>0 0 0</fdir1>
+      <kp>1e+13</kp>
+      <kd>1</kd>
+
+
+      <sensor name="color" type="camera">
+          <pose frame="">0 -0.046 0.004 0 0 0</pose>
+          <camera name="${prefix}_D435_base">
+          <horizontal_fov>${radians(D435_horizontal_depth_fov)}</horizontal_fov>        
+          <image>
+              <width>${D435_image_resolution_width}</width>
+              <height>${D435_image_resolution_height}</height>
+              <format>RGB_INT8</format>
+          </image>
+          <clip>
+              <near>${D435_min_operating_range}</near>
+              <far>${D435_max_operating_range}</far>
+          </clip>
+          <noise>
+              <type>gaussian</type>
+              <mean>0.0</mean>
+              <stddev>0.007</stddev>
+          </noise>
+          </camera>
+          <always_on>1</always_on>
+          <update_rate>60</update_rate>
+          <visualize>true</visualize>
+      </sensor>
+
+      <sensor name="ired1" type="camera">
+          <pose frame="">0 -0.06 0.004 0 0 0</pose>
+          <camera name="${prefix}_D435_base">
+          <horizontal_fov>${radians(D435_horizontal_depth_fov)}</horizontal_fov>         
+          <image>
+              <width>${D435_image_resolution_width}</width>
+              <height>${D435_image_resolution_height}</height>
+              <format>L_INT8</format>
+          </image>
+          <clip>
+            <near>${D435_min_operating_range}</near>
+            <far>${D435_max_operating_range}</far>
+          </clip>
+          <noise>
+              <type>gaussian</type>
+              <mean>0.0</mean>
+              <stddev>0.05</stddev>
+          </noise>
+          </camera>
+          <always_on>1</always_on>
+          <update_rate>60</update_rate>
+          <visualize>true</visualize>
+      </sensor>
+
+      <sensor name="ired2" type="camera">
+          <pose frame="">0 0.01 0.004 0 0 0</pose>
+          <camera name="${prefix}_D435_base">
+          <horizontal_fov>${radians(D435_horizontal_depth_fov)}</horizontal_fov>         
+          <image>
+              <width>${D435_image_resolution_width}</width>
+              <height>${D435_image_resolution_height}</height>
+              <format>L_INT8</format>
+          </image>
+          <clip>
+            <near>${D435_min_operating_range}</near>
+            <far>${D435_max_operating_range}</far>
+          </clip>
+          <noise>
+              <type>gaussian</type>
+              <mean>0.0</mean>
+              <stddev>0.05</stddev>
+          </noise>
+          </camera>
+          <always_on>1</always_on>
+          <update_rate>60</update_rate>
+          <visualize>true</visualize>
+      </sensor>
+
+      <sensor name="depth" type="depth">
+          <pose frame="">0 -0.03 0.004 0 0 0</pose>
+          <camera name="${prefix}_D435_base">
+          <horizontal_fov>${radians(D435_horizontal_depth_fov)}</horizontal_fov>      
+          <image>
+              <width>${D435_image_resolution_width}</width>
+              <height>${D435_image_resolution_height}</height>
+          </image>
+          <clip>
+            <near>${D435_min_operating_range}</near>
+            <far>${D435_max_operating_range}</far>
+          </clip>
+          <noise>
+              <type>gaussian</type>
+              <mean>0.0</mean>
+              <stddev>0.100</stddev>
+          </noise>
+          </camera>
+          <always_on>1</always_on>
+          <update_rate>60</update_rate>
+          <visualize>true</visualize>
+      </sensor>
+      
+  </gazebo>
+
+
+
+
+
+
+
+
+
+
+
+
 
 </xacro:macro>
 
