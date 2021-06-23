@@ -7,6 +7,10 @@
 
 This package contains the required vision sensors such as the [Intel RealSense D435](https://www.intel.com/content/dam/support/us/en/documents/emerging-technologies/intel-realsense-technology/Intel-RealSense-D400-Series-Datasheet.pdf) in the minilift UR3 simulation.
 
+## Dependencies:
+
+* [**realsense_gazebo_plugin**](https://github.com/SyrianSpock/realsense_gazebo_plugin)
+
 ## Tutorial
 
 * Install all the ROS dependencies:
