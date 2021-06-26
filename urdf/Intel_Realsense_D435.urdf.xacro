@@ -3,23 +3,13 @@
 
 
 <!-- REAL PARAMETERS -->  
-<!-- <xacro:property name="D435_min_operating_range" value="0.11"/>
+<xacro:property name="D435_min_operating_range" value="0.11"/>
 <xacro:property name="D435_max_operating_range" value="10"/>
 
 <xacro:property name="D435_image_resolution_width" value="1280"/>
 <xacro:property name="D435_image_resolution_height" value="720"/>
 
 <xacro:property name="D435_horizontal_depth_fov" value="85.2"/>
-<xacro:property name="D435_vertical_depth_fov" value="58"/> -->
-
-<!-- DOWNSAMPLED PARAMETERS -->
-<xacro:property name="D435_min_operating_range" value="0.11"/>
-<xacro:property name="D435_max_operating_range" value="10"/>
-
-<xacro:property name="D435_image_resolution_width" value="640"/>
-<xacro:property name="D435_image_resolution_height" value="480"/>
-
-<xacro:property name="D435_horizontal_depth_fov" value="60"/>
 
 
 
