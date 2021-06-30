@@ -34,7 +34,7 @@
           <geometry>
             <box size="0.02 0.02 ${D435_top_camera_height}"/>
           </geometry>
-          <material name="red"/>
+          <material name="dark_grey"/>
       </visual>
 
       <inertial>
@@ -51,7 +51,7 @@
     </joint>
 
     <gazebo reference="camera_holder">
-        <material>Gazebo/Red</material>
+        <material>Gazebo/DarkGrey</material>
     </gazebo>
 
     <joint name="D435_camera_holder_joint" type="fixed">
