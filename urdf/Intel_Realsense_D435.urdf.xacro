@@ -1,35 +1,126 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot name="D435" xmlns:xacro="http://ros.org/wiki/xacro">
 
-<!--macro name="D435" params="*origin"-->
+
+<!-- REAL PARAMETERS -->  
+<xacro:property name="D435_min_operating_range" value="0.11"/>
+<xacro:property name="D435_top_camera_height" value="0.2"/>
+
+
+<!-- Original values -->
+<xacro:property name="D435_max_operating_range" value="10"/>
+<xacro:property name="D435_image_resolution_width" value="1280"/>
+<xacro:property name="D435_image_resolution_height" value="720"/>
+<xacro:property name="D435_horizontal_depth_fov" value="85.2"/>
+<xacro:property name="D435_top_camera_height" value="0.2"/>
+
+
+<!-- Downsampled Data optimized for performance -->
+<!-- <xacro:property name="D435_max_operating_range" value="1"/>
+<xacro:property name="D435_image_resolution_width" value="640"/>
+<xacro:property name="D435_image_resolution_height" value="480"/>
+<xacro:property name="D435_horizontal_depth_fov" value="60"/> -->
 
 
 
 <xacro:macro name="D435_base" params="prefix parent_link *origin">
 
-    <!-- links -->
+  <!-- links -->
 
-    <link name="${prefix}_D435_base">
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <mesh filename="package://visiondisplay/meshes/visual/Intel_Realsense_D435.stl"/>
-        </geometry>
-        <material name="aluminum">
-          <color rgba="0.5 0.5 0.5 1"/>
-        </material>
-      </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <mesh filename="package://visiondisplay/meshes/collision/Intel_Realsense_D435.stl"/>
-        </geometry>
+  <xacro:if value="${prefix == 'BMR001_top'}">
+
+    <link name="camera_holder">
+
+      <collision name='collision'>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+          <geometry>
+            <box size="0.02 0.02 ${D435_top_camera_height}"/>
+          </geometry>
       </collision>
-    <inertial>
-      <mass value=".3"/>
-      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
-    </inertial>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+          <geometry>
+            <box size="0.02 0.02 ${D435_top_camera_height}"/>
+          </geometry>
+          <material name="dark_grey"/>
+      </visual>
+
+      <inertial>
+          <mass value="0.01"/>
+          <xacro:box_inertia m="0.01" x="0.02" y="0.02" z = "${D435_top_camera_height}"/>
+      </inertial>
+
     </link>
+
+    <joint name="camera_holder_joint" type="fixed">
+        <origin rpy="0 0 0" xyz="0.185 0 ${D435_top_camera_height/2 + 1.783}" />
+        <parent link="${parent_link}"/>
+        <child link="camera_holder"/>
+    </joint>
+
+    <gazebo reference="camera_holder">
+        <material>Gazebo/DarkGrey</material>
+    </gazebo>
+
+    <joint name="D435_camera_holder_joint" type="fixed">
+      <origin rpy="0 0 0" xyz="0 0 ${D435_top_camera_height/2 + 0.0192/2 + 0.019}" />
+      <parent link="camera_holder"/>
+      <child link="${prefix}_D435_base"/>
+    </joint>
+
+  </xacro:if>
+
+  <link name="${prefix}_D435_base">
+
+    <visual>
+
+      <xacro:if value="${prefix == 'BMR001'}">
+        <origin rpy="${pi/2} 0 ${pi/2}" xyz="-0.006 -0.0025 -0.018"/>
+      </xacro:if>
+      <xacro:if value="${prefix == 'BMR001_top'}">
+        <origin rpy="${pi/2 + pi/4} 0 ${pi/2}" xyz="-0.006 -0.0025 -0.018"/>
+      </xacro:if>
+      
+      <geometry>
+        <mesh filename="package://visiondisplay/meshes/visual/realsense.STL"/>
+      </geometry>
+      <material name="aluminum">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+    </visual>
+
+    <collision>
+
+      <xacro:if value="${prefix == 'BMR001'}">
+        <origin xyz="0.016 0 -0.019" rpy="0 0 0"/>
+      </xacro:if>
+      <xacro:if value="${prefix == 'BMR001_top'}">
+        <origin xyz="0.016 0 -0.019" rpy="0 ${pi/4} 0"/>
+      </xacro:if>
+   
+      <geometry>
+        <box size="0.0078 0.130 0.0192"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <mass value="0.0615752"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="9.108e-05"
+                ixy="0"
+                ixz="0"
+                iyy="2.51e-06"
+                iyz="0"
+                izz="8.931e-05"
+      />
+    </inertial>
+
+  </link>
+
+
+
+  <xacro:if value="${prefix == 'BMR001'}">
 
     <joint name="${prefix}_D435_joint" type="fixed">
         <xacro:insert_block name="origin"/>
@@ -38,6 +129,65 @@
         <child link="${prefix}_D435_base"/>
         <axis xyz="0 0 -1"/>
     </joint>
+
+  </xacro:if>
+
+
+
+  <!-- Load parameters to model's main link-->
+  <gazebo reference="${prefix}_D435_base">
+
+    <sensor type="depth" name="${prefix}">
+
+      <always_on>1</always_on>
+      <update_rate>60</update_rate>
+      <visualize>true</visualize>
+
+      <camera>
+        <horizontal_fov>${radians(D435_horizontal_depth_fov)}</horizontal_fov>        
+        <image>
+            <width>${D435_image_resolution_width}</width>
+            <height>${D435_image_resolution_height}</height>
+            <format>R8G8B8</format>
+        </image>
+        <clip>
+            <near>${D435_min_operating_range}</near>
+            <far>${D435_max_operating_range}</far>
+        </clip>
+        <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.007</stddev>
+        </noise>
+      </camera>
+
+      <plugin name="kinect_${prefix}_controller" filename="libgazebo_ros_openni_kinect.so">
+        <cameraName>${prefix}</cameraName>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>10</updateRate>
+        <imageTopicName>rgb/image_raw</imageTopicName>
+        <depthImageTopicName>depth/image_raw</depthImageTopicName>
+        <pointCloudTopicName>depth/points</pointCloudTopicName>
+        <cameraInfoTopicName>rgb/camera_info</cameraInfoTopicName>
+        <depthImageCameraInfoTopicName>depth/camera_info</depthImageCameraInfoTopicName>
+        <frameName>${prefix}_D435_optical</frameName>
+        <hackBaseline>0.2</hackBaseline>
+        <distortionK1>0</distortionK1>
+        <distortionK2>0</distortionK2>
+        <distortionK3>0</distortionK3>
+        <distortionT1>0</distortionT1>
+        <distortionT2>0</distortionT2>
+        <pointCloudCutoff>0.1</pointCloudCutoff>
+        <pointCloudCutoffMax>10.0</pointCloudCutoffMax>
+        <CxPrime>0</CxPrime>
+        <Cx>0</Cx>
+        <Cy>0</Cy>
+        <robotNamespace>/</robotNamespace>
+      </plugin>
+
+    </sensor>
+      
+  </gazebo>
 
 </xacro:macro>
 
